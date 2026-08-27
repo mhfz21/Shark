@@ -9,6 +9,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pure Shark">
 <title>Pure Shark Agent</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
 <style>
 :root{
 --bg:#050505;--bg2:#0A0A0A;--bg3:#111;--bg4:#181818;
@@ -1464,6 +1468,17 @@ else initApp();
 <script>
 function openDrawer(){ document.getElementById('drawer').classList.add('open'); document.getElementById('overlay').style.display='block'; }
 function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('overlay').style.display='none'; }
+</script>
+
+<script>
+// Pure Shark PWA - Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function () { console.log('Pure Shark: Service Worker aktif.'); })
+      .catch(function (err) { console.warn('Pure Shark SW hatasi:', err); });
+  });
+}
 </script>
 </body>
 </html>
