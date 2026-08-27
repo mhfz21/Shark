@@ -1,13 +1,13 @@
 {
-  "name": "Pure Shark",
+  "name": "Pure Shark Agent",
   "short_name": "Shark",
-  "description": "Pure Shark Trading Assistant",
-  "start_url": "./",
+  "description": "Kripto swing trading asistani - Chart analiz, Therapist, Gunluk Bulten",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#050505",
+  "theme_color": "#050505",
   "icons": [
     {
       "src": "./icon-192.png",

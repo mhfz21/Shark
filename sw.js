@@ -1,25 +1,38 @@
-const CACHE_NAME = "pure-shark-v1";
-const APP_SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+/* Pure Shark Agent - Service Worker
+   Strateji: "network-first" - once internetten guncel surumu cek,
+   internet yoksa onbellekten goster. Boylece GitHub'a yeni surum
+   yukleyince telefon HEP en guncelini alir, eski surumde takili kalmaz. */
 
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
-  );
+const CACHE = 'pureshark-v2';
+
+// Kurulumda hemen aktif ol (eski surumu bekleme)
+self.addEventListener('install', function(e){
   self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+// Aktif olunca eski onbellekleri temizle
+self.addEventListener('activate', function(e){
+  e.waitUntil(
+    caches.keys().then(function(keys){
+      return Promise.all(keys.map(function(k){
+        if(k !== CACHE) return caches.delete(k);
+      }));
+    }).then(function(){ return self.clients.claim(); })
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+// Her istekte: once internet, olmazsa onbellek
+self.addEventListener('fetch', function(e){
+  if(e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request).then(function(resp){
+      // Basarili cevabi onbellege de kaydet (offline icin)
+      const copy = resp.clone();
+      caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
+      return resp;
+    }).catch(function(){
+      // Internet yok - onbellekten ver
+      return caches.match(e.request);
+    })
   );
 });

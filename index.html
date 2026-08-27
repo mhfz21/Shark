@@ -4,15 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#050505">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pure Shark">
 <title>Pure Shark Agent</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
 <style>
 :root{
 --bg:#050505;--bg2:#0A0A0A;--bg3:#111;--bg4:#181818;
@@ -45,7 +43,7 @@ button,input,select,textarea{font-family:inherit;-webkit-appearance:none}
 
 #app{display:flex;flex-direction:column;height:100%}
 #topbar{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:10px;flex-shrink:0;padding-top:env(safe-area-inset-top);height:calc(52px + env(safe-area-inset-top))}
-#sharkcv{flex-shrink:0;width:125px;height:52px;display:block}
+#sharkcv{flex-shrink:0}
 .brand{flex:1;min-width:0}
 .bt{font-size:.92rem;font-weight:700;color:var(--gold);letter-spacing:1.5px;display:block;line-height:1.2}
 .bs{font-size:.62rem;color:var(--text3);display:block}
@@ -225,7 +223,7 @@ textarea.mfi{resize:vertical;min-height:120px;font-family:inherit;line-height:1.
 <div id="app">
 
 <div id="topbar">
-  <canvas id="sharkcv" width="125" height="52"></canvas>
+  <canvas id="sharkcv" width="100" height="46"></canvas>
   <div class="brand"><span class="bt">PURE SHARK</span><span class="bs" id="chattitle">Shark Chat</span></div>
   <span id="apidot">&#9679;</span>
   <button class="menubtn" onclick="openDrawer()">&#9776;</button>
@@ -1368,7 +1366,7 @@ function drawSharkFrame(){
 
   var wave = sharkState==='radar'?H*0.06:H*0.13;
   var cy=H/2+Math.sin(shT*0.07)*wave;
-  var cx=W/2+shX, s=H/75;
+  var cx=W/2+shX, s=H/95;
 
   // radar taramasi
   if(sharkState==='radar'){
@@ -1469,14 +1467,21 @@ else initApp();
 function openDrawer(){ document.getElementById('drawer').classList.add('open'); document.getElementById('overlay').style.display='block'; }
 function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('overlay').style.display='none'; }
 </script>
-
 <script>
-// Pure Shark PWA - Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js')
-      .then(function () { console.log('Pure Shark: Service Worker aktif.'); })
-      .catch(function (err) { console.warn('Pure Shark SW hatasi:', err); });
+/* PWA service worker kaydi - guncel surumu cekmek icin */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      // Yeni surum bulununca otomatik guncelle
+      reg.addEventListener('updatefound', function(){
+        var nw = reg.installing;
+        if(nw){ nw.addEventListener('statechange', function(){
+          if(nw.state==='installed' && navigator.serviceWorker.controller){
+            // Yeni surum hazir - sessizce bir sonraki acilista devreye girer
+          }
+        }); }
+      });
+    }).catch(function(e){ /* SW opsiyonel, hata olsa da app calisir */ });
   });
 }
 </script>
