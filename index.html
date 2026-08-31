@@ -106,10 +106,19 @@ button,input,select,textarea{font-family:inherit;-webkit-appearance:none}
 .chartnote{background:var(--bg3);padding:7px 10px;font-size:.76rem;color:var(--text2);border-top:1px solid var(--border)}
 
 /* SHARK OVERLAY (buyuk gorunur animasyon) */
-.shark-overlay{position:absolute;top:0;left:0;right:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:18px 0 14px;background:linear-gradient(180deg,var(--bg2),rgba(10,10,10,0));z-index:20;pointer-events:none}
+.shark-overlay{position:absolute;top:0;left:0;right:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:18px 0 14px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg2) 58%,rgba(10,10,10,0) 100%);z-index:20;pointer-events:none}
 .shark-overlay.show{display:flex;animation:ovin .3s ease}
 @keyframes ovin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-#sharkOverlayCv{width:260px;height:120px}
+#sharkOverlayCv{width:145px;height:145px}
+.sharklogo{width:100px;height:46px;object-fit:contain;display:block;flex-shrink:0;
+  filter:drop-shadow(0 0 6px rgba(212,160,23,.35));
+  animation:swimlogo 3.4s ease-in-out infinite}
+@keyframes swimlogo{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(-1.8deg)}}
+.sharklogo.st-think{animation-duration:5.2s;filter:drop-shadow(0 0 9px rgba(237,161,0,.55))}
+.sharklogo.st-radar{animation-duration:6.5s;filter:drop-shadow(0 0 10px rgba(240,192,53,.65))}
+.sharklogo.bite{animation:bitelogo .55s ease}
+@keyframes bitelogo{0%,100%{transform:scale(1)}42%{transform:scale(1.14) rotate(-3deg)}}
+
 
 #imgbar{display:none;gap:6px;padding:8px 12px;background:var(--bg3);border-top:1px solid var(--border);flex-wrap:wrap;align-items:center;flex-shrink:0}
 .imgprev{position:relative;width:58px;height:44px;border-radius:5px;overflow:hidden;border:1px solid var(--gold3)}
@@ -223,7 +232,7 @@ textarea.mfi{resize:vertical;min-height:120px;font-family:inherit;line-height:1.
 <div id="app">
 
 <div id="topbar">
-  <canvas id="sharkcv" width="100" height="46"></canvas>
+  <img id="sharkimg" class="sharklogo st-swim" alt="Pure Shark" src="data:image/png;base64,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">
   <div class="brand"><span class="bt">PURE SHARK</span><span class="bs" id="chattitle">Shark Chat</span></div>
   <span id="apidot">&#9679;</span>
   <button class="menubtn" onclick="openDrawer()">&#9776;</button>
@@ -233,7 +242,7 @@ textarea.mfi{resize:vertical;min-height:120px;font-family:inherit;line-height:1.
 
 <div class="screen" id="scr-chat">
   <div id="sharkOverlay" class="shark-overlay">
-    <canvas id="sharkOverlayCv" width="260" height="120"></canvas>
+    <canvas id="sharkOverlayCv" width="290" height="290"></canvas>
   </div>
   <div id="chatbox"></div>
   <div id="imgbar"></div>
@@ -758,15 +767,17 @@ function sendMessage(){
   setSharkState(hadImage?'radar':'think');
 
   var reply=addBubble('bshark','',false);
-  reply.innerHTML='<span class="typing">'+(currentMode==='psi'?'Dusunuyor...':'Shark dusunuyor...')+'</span>';
+  reply.innerHTML='';
+  reply.style.display='none';          // YAZI YOK - sadece radar gorunur
   streaming=true; setSendMode('stop');
-  setStatus(hadImage?'Grafik taraniyor...':'Yanit hazirlaniyor...','var(--yellow)');
+  setStatus('','var(--yellow)');       // durum yazisi da bos
 
   var full='';
   abortCtrl = new AbortController();
   streamAPI(messages, useSearch, abortCtrl.signal,
     function(chunk){
       full+=chunk;
+      if(reply.style.display==='none') reply.style.display='';   // ilk icerikte balonu ac
       reply.textContent=full;
       var box=document.getElementById('chatbox'); box.scrollTop=box.scrollHeight;
       // Isirma animasyonu sadece chart/analiz modunda (psikolog modunda degil)
@@ -1116,6 +1127,8 @@ var shT=0, shX=0, shDir=1, biting=false, sharkState='swim';
 
 function triggerBite(){
   biting=true;
+  var im=document.getElementById('sharkimg');
+  if(im){ im.classList.add('bite'); setTimeout(function(){ im.classList.remove('bite'); },600); }
   setTimeout(function(){ biting=false; },600);
   // Yazi YOK - sadece gorsel isirma hareketi (asagida overlay canvas'ta islenir)
   ovBite=true;
@@ -1124,6 +1137,8 @@ function triggerBite(){
 
 function setSharkState(s){
   sharkState=s;
+  var im=document.getElementById('sharkimg');
+  if(im) im.className='sharklogo '+(s==='radar'?'st-radar':(s==='think'?'st-think':'st-swim'));
   var ov=document.getElementById('sharkOverlay');
   if(!ov) return;
   // Yazi YOK - sadece gorsel. Radar (tarama) veya think (dusunme) modu.
@@ -1155,76 +1170,59 @@ function startOverlayCanvas(mode){
   if(!cv) return;
   stopOverlayCanvas();
   var W=cv.width, H=cv.height;
-  initParticles(W,H);
+  var isRadar = (mode==='radar');
+
   function frame(){
     ovT++;
     var ctx=cv.getContext('2d');
     ctx.clearRect(0,0,W,H);
-    var cx=W/2, cy=H/2;
-    var isRadar = mode==='radar';
-    var accent = isRadar ? [46,200,140] : [212,160,23];
-    var aStr = accent.join(',');
 
-    // === KATMAN 1: Derinlik - yukselen kabarciklar ===
-    for(var b=0;b<ovBubbles.length;b++){
-      var bu=ovBubbles[b];
-      bu.y+=bu.vy; bu.x+=Math.sin(ovT*0.03+b)*0.15;
-      if(bu.y<-5){ bu.y=H+5; bu.x=Math.random()*W; }
-      ctx.beginPath(); ctx.arc(bu.x,bu.y,bu.r,0,Math.PI*2);
-      ctx.strokeStyle='rgba('+aStr+',0.12)'; ctx.lineWidth=0.6; ctx.stroke();
+    var cx=W/2, cy=H*0.56, maxR=W*0.45;
+
+    /* ---- KATMAN 1: sabit radar izgarasi (soluk halkalar) ---- */
+    for(var g=1;g<=4;g++){
+      ctx.beginPath();
+      ctx.arc(cx,cy,maxR*(g/4),0,Math.PI*2);
+      ctx.strokeStyle='rgba(212,160,23,0.13)';
+      ctx.lineWidth=1; ctx.stroke();
     }
 
-    // === KATMAN 2: Parcacik agi (altin data noktalari) ===
-    for(var i=0;i<ovParticles.length;i++){
-      var p=ovParticles[i];
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0||p.x>W) p.vx*=-1;
-      if(p.y<0||p.y>H) p.vy*=-1;
-      for(var jj=i+1;jj<ovParticles.length;jj++){
-        var q=ovParticles[jj];
-        var dx=p.x-q.x, dy=p.y-q.y, dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<48){
-          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle='rgba(212,160,23,'+(0.14*(1-dist/48))+')'; ctx.lineWidth=0.5; ctx.stroke();
-        }
-      }
-      var tw=0.3+0.3*Math.sin(ovT*0.05+p.ph);  // twinkle
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(212,160,23,'+tw+')'; ctx.fill();
+    /* ---- KATMAN 2: arti (crosshair) ---- */
+    ctx.beginPath();
+    ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy);
+    ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR);
+    ctx.strokeStyle='rgba(212,160,23,0.10)';
+    ctx.lineWidth=1; ctx.stroke();
+
+    /* ---- KATMAN 3: GENISLEYEN RADAR HALKALARI (kucukten buyuge) ---- */
+    var ringCount = isRadar?4:3;
+    var speed     = isRadar?0.85:0.55;
+    for(var k=0;k<ringCount;k++){
+      var prog=((ovT*speed + k*(100/ringCount))%100)/100;
+      var rr=prog*maxR;
+      if(rr<3) continue;
+      var fade=(1-prog)*(1-prog);
+      ctx.beginPath();
+      ctx.arc(cx,cy,rr,0,Math.PI*2);
+      ctx.strokeStyle='rgba(240,192,53,'+(0.55*fade)+')';
+      ctx.lineWidth=1.6; ctx.stroke();
     }
 
-    // === KATMAN 3: Radar / nabiz halkalari ===
-    if(isRadar){
-      // ic ice genisleyen radar halkalari (referanstaki gibi cok katmanli)
-      for(var k=0;k<5;k++){
-        var rr=((ovT*0.9+k*12)%60)/60;
-        ctx.beginPath();
-        ctx.arc(cx,cy, rr*W*0.5, 0, Math.PI*2);
-        ctx.strokeStyle='rgba('+aStr+','+(0.45*(1-rr))+')';
-        ctx.lineWidth=1.3; ctx.stroke();
-      }
-      // donen tarama huzmesi + iz birakan yelpaze
-      var ang=ovT*0.05;
-      for(var tr=0;tr<12;tr++){
-        var ta=ang-tr*0.05;
-        ctx.beginPath(); ctx.moveTo(cx,cy);
-        ctx.lineTo(cx+Math.cos(ta)*W*0.5, cy+Math.sin(ta)*W*0.5);
-        ctx.strokeStyle='rgba('+aStr+','+(0.32*(1-tr/12))+')'; ctx.lineWidth=1.5; ctx.stroke();
-      }
-    } else {
-      // dusunme: yumusak es-merkezli nabiz
-      for(var n=0;n<3;n++){
-        var pr=((ovT*0.8+n*18)%54)/54;
-        ctx.beginPath(); ctx.arc(cx,cy, 20+pr*44, 0, Math.PI*2);
-        ctx.strokeStyle='rgba('+aStr+','+(0.35*(1-pr))+')'; ctx.lineWidth=1.3; ctx.stroke();
-      }
+    /* ---- KATMAN 4: radar blipleri (yavas donen isik noktalari) ---- */
+    for(var b=0;b<3;b++){
+      var ba=ovT*0.012 + b*2.1;
+      var brd=maxR*(0.42+0.28*b);
+      var bx=cx+Math.cos(ba)*brd, by=cy+Math.sin(ba)*brd*0.85;
+      var tw=0.35+0.35*Math.sin(ovT*0.07+b*2);
+      ctx.beginPath(); ctx.arc(bx,by,1.8,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,215,88,'+tw+')'; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(bx,by);
+      ctx.strokeStyle='rgba(212,160,23,'+(0.10*tw)+')';
+      ctx.lineWidth=0.7; ctx.stroke();
     }
 
-    // === KATMAN 4: Sinematik altin shark ===
-    // yuzme: hafif dikey suzulme + bas-kuyruk salinimi
-    var swimY=cy+Math.sin(ovT*0.045)*7;
-    var scale=H/88;
-    drawCinematicShark(ctx, cx, swimY, scale, ovT, accent, isRadar, ovBite);
+    /* ---- KATMAN 5: YUZGEC (fin) ---- */
+    drawSharkFin(ctx, cx, cy, W/168, ovT, ovBite);
 
     ovRAF=requestAnimationFrame(frame);
   }
@@ -1233,187 +1231,85 @@ function startOverlayCanvas(mode){
 function stopOverlayCanvas(){ if(ovRAF){ cancelAnimationFrame(ovRAF); ovRAF=null; } }
 
 /* =====================================================================
-   SINEMATIK ALTIN SHARK - facetli, dissiz, cene hareketli, gercekci yuzme
-   Referans gorseldeki low-poly altin shark estetigi
+   PURE SHARK YUZGECI - temiz, altin, su cizgisi + yansima
+   Radar merkezinde durur, hafifce suzulur
    ===================================================================== */
-function drawCinematicShark(ctx, px, py, s, t, accent, isRadar, bite){
+function drawSharkFin(ctx, cx, cy, s, t, bite){
   ctx.save();
-  ctx.translate(px, py);
+  ctx.translate(cx, cy);
+  ctx.rotate(Math.sin(t*0.028)*0.035);          // cok hafif salinim
+  var pump = bite ? 1.10 : 1;                   // isirma aninda hafif buyume
+  ctx.scale(s*pump, s*pump);
 
-  // Yuzme dinamigi: govde hafif dalgalanir, kuyruk sallanir
-  var bodyWave = Math.sin(t*0.09)*0.05;
-  ctx.rotate(bodyWave);
-
-  // Altin gradyan paleti (koyu -> parlak highlight)
-  var C = isRadar
-    ? {d:'#0A5A3E', m:'#0F7D56', b:'#1BAF7A', l:'#3FD89A', h:'#7FF0BE', dk:'#063D2A'}
-    : {d:'#7A5A0E', m:'#A8811A', b:'#D4A017', l:'#F0C035', h:'#FFD758', dk:'#4A3808'};
-
-  // === Isik halesi (nefes alir gibi) ===
-  var breathe = 0.14 + 0.05*Math.sin(t*0.06);
-  var glow=ctx.createRadialGradient(0,0,4,0,0,60*s);
-  glow.addColorStop(0, isRadar?('rgba(27,175,122,'+breathe+')'):('rgba(212,160,23,'+breathe+')'));
+  /* --- hale (nefes alir) --- */
+  var br=0.20+0.07*Math.sin(t*0.05);
+  var glow=ctx.createRadialGradient(0,-18,2,0,-18,50);
+  glow.addColorStop(0,'rgba(240,192,53,'+br+')');
   glow.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(0,0,60*s,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=glow;
+  ctx.beginPath(); ctx.arc(0,-18,50,0,Math.PI*2); ctx.fill();
 
-  // Facet cizim yardimcisi
-  function facet(pts, color, alpha){
-    ctx.beginPath();
-    ctx.moveTo(pts[0]*s, pts[1]*s);
-    for(var i=2;i<pts.length;i+=2) ctx.lineTo(pts[i]*s, pts[i+1]*s);
-    ctx.closePath();
-    ctx.globalAlpha = alpha||1;
-    ctx.fillStyle=color; ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,0.22)'; ctx.lineWidth=0.35; ctx.stroke();
-    ctx.globalAlpha=1;
-  }
+  /* --- su cizgisi --- */
+  var lg=ctx.createLinearGradient(-56,0,56,0);
+  lg.addColorStop(0,'rgba(212,160,23,0)');
+  lg.addColorStop(0.5,'rgba(255,215,88,0.85)');
+  lg.addColorStop(1,'rgba(212,160,23,0)');
+  ctx.strokeStyle=lg; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(-56,0); ctx.lineTo(56,0); ctx.stroke();
 
-  // === KUYRUK (sol) - sallanir (ayri rotasyon) ===
+  /* --- su alti yansimasi --- */
   ctx.save();
-  var tailSwing = Math.sin(t*0.11)*0.28;  // kuyruk daha cok sallanir
-  ctx.translate(-42*s, 0);
-  ctx.rotate(tailSwing);
-  facet([0,0, -16,-22, -6,-3], C.d);
-  facet([0,0, -6,-3, 6,3], C.m);
-  facet([0,0, 6,3, -14,26], C.dk);
-  facet([0,0, -14,26, -4,4], C.m);
+  ctx.globalAlpha=0.11;
+  ctx.scale(1,-0.34);
+  finPath(ctx);
+  ctx.fillStyle='#D4A017'; ctx.fill();
   ctx.restore();
 
-  // === GOVDE arka (koyu-orta gecis) ===
-  facet([-42,2, -12,9, -10,-7], C.m);
-  facet([-42,2, -42,-7, -10,-7], C.d);
-  facet([-10,-7, -12,9, 18,11], C.m);
-  facet([-10,-7, 18,11, 22,-11], C.b);
+  /* --- yuzgec govdesi --- */
+  finPath(ctx);
+  var fg=ctx.createLinearGradient(-22,2,18,-46);
+  fg.addColorStop(0,'#7A5A0E');
+  fg.addColorStop(0.40,'#C2930F');
+  fg.addColorStop(0.72,'#F0C035');
+  fg.addColorStop(1,'#FFE9A8');
+  ctx.fillStyle=fg; ctx.fill();
 
-  // === GOVDE orta (en parlak - highlight bandi) ===
-  facet([22,-11, 18,11, 46,9], C.b);
-  facet([22,-11, 46,9, 52,-9], C.l);
-  facet([52,-9, 46,9, 64,5], C.b);
-  // sirt highlight cizgisi (isik yansimasi)
-  facet([26,-10, 40,-11, 36,-13], C.h, 0.7);
-
-  // === SIRT YUZGECI (buyuk ucgen, facetli, dinamik) ===
-  var finFlex = Math.sin(t*0.08)*1.2;
-  facet([14,-11, 28+finFlex,-42, 38,-13], C.l);
-  facet([14,-11, 38,-13, 22,-11], C.b);
-  facet([28+finFlex,-42, 38,-13, 33,-15], C.h);
-
-  // === IKINCIL SIRT YUZGECI ===
-  facet([-6,-7, 2,-19, 10,-9], C.m);
-
-  // === GOGUS YUZGECI (alt, hareketli) ===
-  ctx.save();
-  var pecFlex = Math.sin(t*0.1+1)*0.15;
-  ctx.translate(20*s, 10*s);
-  ctx.rotate(pecFlex);
-  facet([0,0, 6,22, 22,4], C.dk);
-  facet([0,0, 22,4, 12,1], C.m);
-  ctx.restore();
-
-  // === BAS (sag) - burun ve ust cene ===
-  facet([52,-9, 64,5, 76,-3], C.l);
-  facet([76,-3, 64,5, 72,3], C.b);
-  facet([52,-9, 76,-3, 68,-7], C.h);
-  facet([68,-7, 76,-3, 80,-1], C.h, 0.85);
-
-  // === CENE HAREKETI (isirma) - dissiz, sadece agiz acilip kapanir ===
-  var jawOpen = bite ? (6 + Math.sin(t*0.8)*2) : 1.5;  // isirirken cene acilir
-  // alt cene (acilma miktarina gore asagi iner)
-  facet([64,5, 72,3+jawOpen, 80,1+jawOpen*0.6], C.dk);
-  facet([64,5, 80,1+jawOpen*0.6, 78,-1], C.m, 0.9);
-  // agiz ic karanligi (acikken belli olur)
-  if(bite){
-    ctx.beginPath();
-    ctx.moveTo(66*s,3*s); ctx.lineTo(80*s,(0+jawOpen*0.6)*s); ctx.lineTo(74*s,(3+jawOpen)*s);
-    ctx.closePath(); ctx.fillStyle='rgba(20,10,4,0.8)'; ctx.fill();
-  }
-
-  // === SOLUNGACLAR (bas yakini, ince cizgiler) ===
-  ctx.strokeStyle='rgba(0,0,0,0.3)'; ctx.lineWidth=0.7;
-  for(var g=0;g<4;g++){
-    var gx=(46+g*3.5)*s;
-    ctx.beginPath(); ctx.moveTo(gx,-6*s); ctx.lineTo(gx-1*s,7*s); ctx.stroke();
-  }
-
-  // === GOZ (canli, radar/dusunme rengine gore parlar) ===
-  var eyeX=70*s, eyeY=-3*s;
-  ctx.beginPath(); ctx.arc(eyeX,eyeY,2.6*s,0,Math.PI*2);
-  ctx.fillStyle='#140A04'; ctx.fill();
-  // goz parlamasi (canlilik - hafif nabiz)
-  var eyeGlow=0.7+0.3*Math.sin(t*0.15);
-  ctx.beginPath(); ctx.arc(eyeX-0.5*s,eyeY-0.5*s,1.1*s,0,Math.PI*2);
-  ctx.fillStyle=isRadar?'#9FFFD8':'#FFE580'; ctx.globalAlpha=eyeGlow; ctx.fill(); ctx.globalAlpha=1;
-  // avci bakisi - radar modunda goz cevresi hafif parlar
-  if(isRadar){
-    ctx.beginPath(); ctx.arc(eyeX,eyeY,4*s,0,Math.PI*2);
-    ctx.strokeStyle='rgba(159,255,216,0.3)'; ctx.lineWidth=0.6; ctx.stroke();
-  }
-
-  ctx.restore();
-}
-
-function drawSharkFrame(){
-  var cvs=document.getElementById('sharkcv');
-  if(!cvs){ requestAnimationFrame(drawSharkFrame); return; }
-  var W=cvs.width, H=cvs.height, ctx=cvs.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-  shT++;
-
-  var speed = sharkState==='think'?0.15:(sharkState==='radar'?0.25:0.5);
-  shX += speed*shDir;
-  var range=W*0.16;
-  if(shX>range) shDir=-1; if(shX<-range) shDir=1;
-
-  var wave = sharkState==='radar'?H*0.06:H*0.13;
-  var cy=H/2+Math.sin(shT*0.07)*wave;
-  var cx=W/2+shX, s=H/95;
-
-  // radar taramasi
-  if(sharkState==='radar'){
-    var rr=(shT%60)/60;
-    ctx.beginPath();
-    ctx.arc(cx+30*s,cy, rr*40*s, 0, Math.PI*2);
-    ctx.strokeStyle='rgba(27,175,122,'+(0.5*(1-rr))+')';
-    ctx.lineWidth=1.5; ctx.stroke();
-  }
-
-  ctx.save();
-  if(shDir<0){ ctx.translate(W,0); ctx.scale(-1,1); cx=W-cx; }
-
-  var glowC = sharkState==='think'?'rgba(237,161,0,0.13)':(sharkState==='radar'?'rgba(27,175,122,0.15)':'rgba(212,160,23,0.13)');
-  var g=ctx.createRadialGradient(cx+30*s,cy,2,cx+30*s,cy,60*s);
-  g.addColorStop(0,glowC); g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx+30*s,cy,60*s,0,Math.PI*2); ctx.fill();
-
-  // govde
+  /* --- ic hacim golgesi --- */
   ctx.beginPath();
-  ctx.moveTo(cx,cy+10*s);
-  ctx.lineTo(cx+20*s,cy-9*s); ctx.lineTo(cx+55*s,cy-14*s); ctx.lineTo(cx+82*s,cy-6*s);
-  ctx.lineTo(cx+92*s,cy); ctx.lineTo(cx+82*s,cy+12*s); ctx.lineTo(cx+42*s,cy+16*s); ctx.lineTo(cx+10*s,cy+12*s);
-  ctx.closePath(); ctx.fillStyle='#D4A017'; ctx.fill();
-  ctx.strokeStyle='#5A4010'; ctx.lineWidth=0.6; ctx.stroke();
-  // sirt yuzgeci
-  ctx.beginPath(); ctx.moveTo(cx+34*s,cy-14*s); ctx.lineTo(cx+48*s,cy-40*s); ctx.lineTo(cx+63*s,cy-14*s);
-  ctx.closePath(); ctx.fillStyle='#F0C035'; ctx.fill();
-  // gogus yuzgeci
-  ctx.beginPath(); ctx.moveTo(cx+22*s,cy+9*s); ctx.lineTo(cx+32*s,cy+30*s); ctx.lineTo(cx+52*s,cy+17*s);
-  ctx.closePath(); ctx.fillStyle='#8A6010'; ctx.fill();
-  // kuyruk
-  ctx.beginPath(); ctx.moveTo(cx,cy+10*s); ctx.lineTo(cx-18*s,cy-24*s); ctx.lineTo(cx-8*s,cy+10*s); ctx.lineTo(cx-18*s,cy+30*s);
-  ctx.closePath(); ctx.fillStyle='#8A6010'; ctx.fill();
-  // solungaclar
-  for(var i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(cx+(50+i*8)*s,cy-8*s); ctx.lineTo(cx+(50+i*8)*s,cy+8*s); ctx.strokeStyle='#5A4010'; ctx.lineWidth=0.8; ctx.stroke(); }
-  // goz
-  ctx.beginPath(); ctx.arc(cx+70*s,cy-4*s,3.6*s,0,Math.PI*2); ctx.fillStyle='#050505'; ctx.fill();
-  ctx.strokeStyle='#8A6010'; ctx.lineWidth=0.5; ctx.stroke();
-  // isirma - dissiz, sadece agiz acilma efekti
-  if(biting){
-    ctx.beginPath(); ctx.arc(cx+88*s,cy+2*s,10*s,Math.PI*0.15,Math.PI*0.85);
-    ctx.strokeStyle='#F0C035'; ctx.lineWidth=1.5*s; ctx.stroke();
-  }
+  ctx.moveTo(-13,0);
+  ctx.bezierCurveTo(-9,-14, -3,-26, 9,-35);
+  ctx.bezierCurveTo(7,-21, 8,-9, 15,0);
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,225,130,0.20)'; ctx.fill();
+
+  /* --- parlak on kenar --- */
+  ctx.beginPath();
+  ctx.moveTo(-23,0);
+  ctx.bezierCurveTo(-16,-21, -5,-37, 15,-46);
+  ctx.strokeStyle='rgba(255,235,165,0.92)'; ctx.lineWidth=1.2; ctx.stroke();
+
+  /* --- taban golgesi --- */
+  var bs=ctx.createLinearGradient(-23,0,25,0);
+  bs.addColorStop(0,'rgba(0,0,0,0)');
+  bs.addColorStop(0.5,'rgba(0,0,0,0.35)');
+  bs.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.strokeStyle=bs; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(-23,0.6); ctx.lineTo(25,0.6); ctx.stroke();
+
   ctx.restore();
-  requestAnimationFrame(drawSharkFrame);
 }
+
+/* yuzgec silueti (tek yerden) */
+function finPath(ctx){
+  ctx.beginPath();
+  ctx.moveTo(-23,0);
+  ctx.bezierCurveTo(-16,-21, -5,-37, 15,-46);   // on kenar: disbukey, uca dogru
+  ctx.bezierCurveTo(10,-28, 11,-12, 25,0);      // arka kenar: icbukey supurme
+  ctx.closePath();
+}
+
+
+function drawSharkFrame(){ /* logo artik <img> - canvas dongusu yok */ }
 
 /* =====================================================================
    SPLASH + INIT
@@ -1421,6 +1317,7 @@ function drawSharkFrame(){
 var SPLASH_MSGS=['Makro pusula kalibre ediliyor...','Veto motoru yukleniyor...',
   'Chart analiz protokolu hazirlaniyor...','Web arama baglantisi aciliyor...',
   'Risk mimarisi kuruluyor...','Shark radar sistemi aktif.'];
+
 function runSplash(){
   var bar=document.getElementById('spbar'), msg=document.getElementById('spmsg');
   var p=0, mi=-1;
