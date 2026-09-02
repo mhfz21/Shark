@@ -1,6 +1,6 @@
 {
-  "name": "Pure Shark Agent",
-  "short_name": "Pure Shark",
+  "name": "Shark",
+  "short_name": "Shark",
   "description": "Kripto swing trading asistani - Chart analiz, Therapist, Gunluk Bulten",
   "start_url": "./index.html",
   "scope": "./",
