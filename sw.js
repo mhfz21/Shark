@@ -3,7 +3,7 @@
    internet yoksa onbellekten goster. Boylece GitHub'a yeni surum
    yukleyince telefon HEP en guncelini alir, eski surumde takili kalmaz. */
 
-const CACHE = 'pureshark-v2';
+const CACHE = 'shark-mobil-v5';
 
 // Kurulumda hemen aktif ol (eski surumu bekleme)
 self.addEventListener('install', function(e){
