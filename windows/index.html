@@ -1214,7 +1214,7 @@ function sendMessage(){
 
   var full='';
   abortCtrl = new AbortController();
-  streamAPI(messages, useSearch, abortCtrl.signal,
+  streamAPI(apiMesajlari(), useSearch, abortCtrl.signal,
     function(chunk){
       full+=chunk;
       if(reply.style.display==='none') reply.style.display='';   // ilk icerikte balonu ac
@@ -1284,6 +1284,55 @@ function onSendClick(){
 }
 
 /* ---------- Images ---------- */
+
+/* =====================================================================
+   GORSEL OPTIMIZASYONU
+   Grafik ekran goruntuleri cogunlukla 1080x2400 gelir (~3450 token).
+   En uzun kenari 1400px'e indirince ~1180 token olur (%66 tasarruf).
+   Grafik cizgileri ve fiyat eksenleri bu cozunurlukte NET okunur -
+   analiz kalitesi dusmez, sadece gereksiz piksel gonderilmez.
+   ===================================================================== */
+var IMG_MAX_KENAR = 1400;
+
+function kucultVeEkle(dataUrl, ad){
+  var img = new Image();
+  img.onload = function(){
+    var w = img.width, h = img.height;
+    var enUzun = Math.max(w, h);
+
+    if(enUzun <= IMG_MAX_KENAR){
+      // zaten kucuk - oldugu gibi kullan
+      var comma = dataUrl.indexOf(',');
+      var mt = dataUrl.substring(5, dataUrl.indexOf(';'));
+      pendingImages.push({data:dataUrl.substring(comma+1), media:(mt==='image/jpg'?'image/jpeg':mt), name:ad});
+      renderImgPreview();
+      return;
+    }
+
+    var oran = IMG_MAX_KENAR / enUzun;
+    var nw = Math.round(w*oran), nh = Math.round(h*oran);
+    var cv = document.createElement('canvas');
+    cv.width = nw; cv.height = nh;
+    var ctx = cv.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, nw, nh);
+
+    // JPEG kalite 0.9 - grafik cizgileri icin fazlasiyla yeterli
+    var out = cv.toDataURL('image/jpeg', 0.9);
+    pendingImages.push({ data: out.substring(out.indexOf(',')+1), media:'image/jpeg', name:ad });
+    renderImgPreview();
+  };
+  img.onerror = function(){
+    // kucultulemezse orijinali kullan (guvenli geri donus)
+    var comma = dataUrl.indexOf(',');
+    var mt = dataUrl.substring(5, dataUrl.indexOf(';'));
+    pendingImages.push({data:dataUrl.substring(comma+1), media:(mt==='image/jpg'?'image/jpeg':mt), name:ad});
+    renderImgPreview();
+  };
+  img.src = dataUrl;
+}
+
 function handleFiles(files){
   if(!files||!files.length) return;
   for(var i=0;i<files.length;i++){
@@ -1292,10 +1341,7 @@ function handleFiles(files){
       if(pendingImages.length>=MAX_IMAGES){ alert('En fazla '+MAX_IMAGES+' gorsel eklenebilir.'); return; }
       var reader=new FileReader();
       reader.onload=function(e){
-        var res=e.target.result, comma=res.indexOf(',');
-        var media=file.type==='image/jpg'?'image/jpeg':file.type;
-        pendingImages.push({data:res.substring(comma+1),media:media,name:file.name});
-        renderImgPreview();
+        kucultVeEkle(e.target.result, file.name);
       };
       reader.readAsDataURL(file);
     })(files[i]);
@@ -1317,11 +1363,45 @@ function removeImg(i){ pendingImages.splice(i,1); renderImgPreview(); }
 function clearImages(){ pendingImages=[]; renderImgPreview(); var fi=document.getElementById('fileinput'); if(fi) fi.value=''; }
 
 /* ---------- API (web search + durdurma destekli) ---------- */
-function streamAPI(msgs,useSearch,signal,onChunk,onDone,onError){
+
+/* =====================================================================
+   GECMIS GORSEL TEMIZLIGI
+   Ayni grafikler her takip sorusunda tekrar tekrar gonderiliyordu.
+   Artik gorseller SADECE en son kullanici mesajinda gider; onceki
+   turlarda yerine kisa bir not kalir. Analiz METNI gecmiste durdugu
+   icin baglam kaybolmaz, sadece ayni pikseller tekrar faturalanmaz.
+   ===================================================================== */
+function apiMesajlari(){
+  // son kullanici mesajinin indeksi
+  var sonKullanici = -1;
+  for(var i=messages.length-1;i>=0;i--){ if(messages[i].role==='user'){ sonKullanici=i; break; } }
+
+  var out=[];
+  for(var j=0;j<messages.length;j++){
+    var m = messages[j];
+    if(m.role!=='user' || j===sonKullanici || !Array.isArray(m.content)){ out.push(m); continue; }
+
+    var gorselVar=false, yeni=[];
+    for(var k=0;k<m.content.length;k++){
+      var p=m.content[k];
+      if(p && p.type==='image'){ gorselVar=true; continue; }
+      yeni.push(p);
+    }
+    if(!gorselVar){ out.push(m); continue; }
+    yeni.unshift({type:'text', text:'[Onceki turda gonderilen grafik(ler) - analizi asagida]'});
+    out.push({role:'user', content:yeni});
+  }
+  return out;
+}
+
+function streamAPI(msgs,useSearch,signal,onChunk,onDone,onError,sysOverride,maxTok){
+  var sysText = sysOverride || buildSystem();
   var body={
     model:'claude-sonnet-4-6',
-    max_tokens:8192,
-    system:buildSystem(),
+    max_tokens: maxTok || 8192,
+    // Prompt caching: ayni sistem promptu tekrar gonderilince %90 ucuz okunur.
+    // Cikti kalitesi DEGISMEZ - sadece faturalandirma degisir.
+    system: [{ type:'text', text: sysText, cache_control:{ type:'ephemeral' } }],
     messages:msgs,
     stream:true
   };
@@ -1570,7 +1650,7 @@ function calGuncelle(){
 
   var istek =
     'Bugun ' + bugun + '. Web aramasi yaparak ONUMUZDEKI 90 GUN icindeki kripto ve makro '+
-    'olaylarini bul. PURE SHARK SUZGECI UYGULA:\n'+
+    'olaylarini bul. SHARK SUZGECI UYGULA:\n'+
     '- SADECE piyasayi gercekten hareket ettirebilecek olaylari al (ACIL / ONEMLI).\n'+
     '- GURULTU olanlari ALMA: sponsorlu duyurular, kucuk borsa listelemeleri, '+
     'influencer aciklamalari, rutin proje guncellemeleri, tahmin/spekulasyon haberleri.\n'+
@@ -1585,6 +1665,10 @@ function calGuncelle(){
     'Basliklar ' + dil + ' olsun ve KISA olsun (en fazla 45 karakter).';
 
   var toplam = '';
+  var CAL_SYS = 'You are a precise financial calendar assistant. '+
+    'You search the web and return ONLY a raw JSON array of upcoming market events. '+
+    'No explanation, no markdown, no code fences. Be strict about date accuracy.';
+
   streamAPI(
     [{role:'user', content:[{type:'text', text:istek}]}],
     true, null,
@@ -1629,7 +1713,9 @@ function calGuncelle(){
       calYukleniyor = false;
       if(btn){ btn.disabled=false; btn.textContent = T('Güncelle'); }
       setStatus(T('Takvim güncellenemedi, tekrar deneyin.'), 'var(--red)');
-    }
+    },
+    CAL_SYS,   // strateji promptu GONDERILMEZ - sadece kucuk takvim promptu
+    1500       // JSON dizisi icin 1500 token yeter
   );
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "Shark",
   "short_name": "Shark",
-  "description": "Kripto swing trading asistani - Chart analiz, Therapist, Gunluk Bulten",
+  "description": "Kripto swing trading asistanı — Grafik Analizi, Terapist, Haber Bülteni",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
