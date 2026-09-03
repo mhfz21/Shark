@@ -354,7 +354,7 @@ textarea.mfi{resize:vertical;min-height:120px;font-family:inherit;line-height:1.
 </div>
 
 <div class="screen" id="scr-calendar">
-  <div class="schead"><span class="sctitle">Piyasa Takvimi</span><button class="scbtn" onclick="openModal('cmodal')">+ Etkinlik</button></div>
+  <div class="schead"><span class="sctitle">Piyasa Takvimi</span><button class="scbtn" id="calbtn" onclick="calGuncelle()">Güncelle</button><button class="scbtn" onclick="openModal('cmodal')">+ Etkinlik</button></div>
   <div class="scbody"><div id="clist"></div></div>
 </div>
 
@@ -857,7 +857,13 @@ var I18N = {
 "Takip Listesi — Koin Takibi": "Watchlist — Coin Tracking",
 "Koin": "Coin",
 "Koin adı gerekli.": "Coin name required.",
-"Grafik Analizi Protokolü v5.6.2 (mühürlü çekirdek)": "Chart Analysis Protocol v5.6.2 (sealed core)"
+"Grafik Analizi Protokolü v5.6.2 (mühürlü çekirdek)": "Chart Analysis Protocol v5.6.2 (sealed core)",
+"Güncelle": "Update",
+"Aranıyor...": "Searching...",
+"Takvim güncelleniyor...": "Updating calendar...",
+"Eklenen etkinlik: ": "Events added: ",
+"Yeni etkinlik bulunamadı.": "No new events found.",
+"Takvim güncellenemedi, tekrar deneyin.": "Could not update the calendar, please try again."
 };
 
 var LANG = (function(){
@@ -1478,8 +1484,107 @@ function saveCal(){
   sv('calendar',cdata); closeModal('cmodal'); renderCalendar(); clearVals(['cf-date','cf-title']);
 }
 function delCal(id){ cdata=cdata.filter(function(e){return e.id!==id;}); sv('calendar',cdata); renderCalendar(); }
+
+/* =====================================================================
+   AKILLI TAKVIM
+   - Tarihi 5 gun gecen etkinlikler otomatik silinir
+   - Her etkinlik silinebilir (varsayilanlar dahil)
+   - "Guncelle" ile web'den SADECE Shark suzgecinden gecmis
+     (ACIL/ONEMLI) olaylar cekilir; GURULTU alinmaz
+   ===================================================================== */
+var CAL_TUT_GUN = 5;   // gecmis etkinlik kac gun ekranda kalsin
+
+function calTemizle(){
+  var sinir = new Date();
+  sinir.setDate(sinir.getDate() - CAL_TUT_GUN);
+  var s = sinir.toISOString().split('T')[0];
+  var once = cdata.length;
+  cdata = cdata.filter(function(e){ return e.date >= s; });
+  if(cdata.length !== once) sv('calendar', cdata);
+  return once - cdata.length;
+}
+
+var calYukleniyor = false;
+function calGuncelle(){
+  if(calYukleniyor) return;
+  if(!cfg.api_key){ alert(T('Önce Ayarlar bölümünden API anahtarınızı girin.')); return; }
+
+  var btn = document.getElementById('calbtn');
+  calYukleniyor = true;
+  if(btn){ btn.disabled = true; btn.textContent = T('Aranıyor...'); }
+  setStatus(T('Takvim güncelleniyor...'), 'var(--yellow)');
+
+  var bugun = today();
+  var dil = (LANG === 'en') ? 'ENGLISH' : 'TURKISH';
+
+  var istek =
+    'Bugun ' + bugun + '. Web aramasi yaparak ONUMUZDEKI 90 GUN icindeki kripto ve makro '+
+    'olaylarini bul. PURE SHARK SUZGECI UYGULA:\n'+
+    '- SADECE piyasayi gercekten hareket ettirebilecek olaylari al (ACIL / ONEMLI).\n'+
+    '- GURULTU olanlari ALMA: sponsorlu duyurular, kucuk borsa listelemeleri, '+
+    'influencer aciklamalari, rutin proje guncellemeleri, tahmin/spekulasyon haberleri.\n'+
+    '- Oncelik sirasi: Fed faiz karari ve tutanaklar, CPI/PCE/istihdam verileri, '+
+    'FOMC, buyuk regulasyon/SEC/CFTC kararlari, ETF kararlari, buyuk token unlock, '+
+    'halving, onemli ag yukseltmeleri (upgrade), buyuk endeks incelemeleri.\n'+
+    '- Onem seviyesi: "red" = piyasayi sert hareket ettirebilir (Fed karari, CPI, buyuk regulasyon). '+
+    '"yellow" = dikkat gerektirir ama sok etkisi dusuk. "green" seviyesini KULLANMA.\n'+
+    '- En fazla 12 olay. Tarihi kesin olmayanlari ALMA.\n\n'+
+    'CIKTI: SADECE saf JSON dizisi dondur. Aciklama, markdown, kod bloku YAZMA.\n'+
+    'Bicim: [{"date":"YYYY-MM-DD","title":"kisa baslik","level":"red|yellow"}]\n'+
+    'Basliklar ' + dil + ' olsun ve KISA olsun (en fazla 45 karakter).';
+
+  var toplam = '';
+  streamAPI(
+    [{role:'user', content:[{type:'text', text:istek}]}],
+    true, null,
+    function(ch){ toplam += ch; },
+    function(){
+      calYukleniyor = false;
+      if(btn){ btn.disabled=false; btn.textContent = T('Güncelle'); }
+      try{
+        var m = toplam.match(/\[[\s\S]*\]/);
+        if(!m) throw new Error('JSON yok');
+        var gelen = JSON.parse(m[0]);
+        var eklendi = 0;
+        for(var i=0;i<gelen.length;i++){
+          var e = gelen[i];
+          if(!e || !e.date || !e.title) continue;
+          if(!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) continue;
+          if(e.date < bugun) continue;
+          // ayni tarih+baslik varsa tekrar ekleme
+          var var_mi = false;
+          for(var j=0;j<cdata.length;j++){
+            if(cdata[j].date===e.date && cdata[j].title.toLowerCase()===String(e.title).toLowerCase()){ var_mi=true; break; }
+          }
+          if(var_mi) continue;
+          cdata.push({
+            id: 'w'+Date.now()+'_'+i,
+            date: e.date,
+            title: String(e.title).substring(0,60),
+            level: (e.level==='red' ? 'red' : 'yellow'),
+            custom: true
+          });
+          eklendi++;
+        }
+        cdata.sort(function(a,b){ return a.date<b.date?-1:1; });
+        sv('calendar', cdata);
+        renderCalendar();
+        setStatus(eklendi ? (T('Eklenen etkinlik: ')+eklendi) : T('Yeni etkinlik bulunamadı.'), 'var(--green)');
+      }catch(err){
+        setStatus(T('Takvim güncellenemedi, tekrar deneyin.'), 'var(--red)');
+      }
+    },
+    function(hata){
+      calYukleniyor = false;
+      if(btn){ btn.disabled=false; btn.textContent = T('Güncelle'); }
+      setStatus(T('Takvim güncellenemedi, tekrar deneyin.'), 'var(--red)');
+    }
+  );
+}
+
 function renderCalendar(){
   var list=document.getElementById('clist'); if(!list) return;
+  calTemizle();   // tarihi 5 gunden fazla gecenleri sil
   var t=today(), LC={red:'var(--red)',yellow:'var(--yellow)',green:'var(--green)'}, LL={red:T('Kritik'),yellow:T('Önemli'),green:T('Bilgi')};
   var up=[],past=[];
   for(var i=0;i<cdata.length;i++){ if(cdata[i].date>=t) up.push(cdata[i]); else past.push(cdata[i]); }
@@ -1495,7 +1600,7 @@ function renderCalendar(){
          '<span class="caldate">'+esc(e.date)+'</span>'+
          '<span class="caltitle">'+esc(e.title)+'</span>'+
          '<span class="callvl">'+(LL[e.level]||'')+'</span>'+
-         (e.custom?'<span class="delx" onclick="delCal(\''+e.id+'\')">&times;</span>':'')+'</div>';
+         '<span class="delx" onclick="delCal(\''+e.id+'\')">&times;</span>'+'</div>';
     }
   }
   list.innerHTML=h;
