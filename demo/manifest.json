@@ -1,12 +1,12 @@
 {
-  "name": "Shark Demo",
-  "short_name": "Shark Demo",
+  "name": "Shark",
+  "short_name": "Shark",
+  "description": "Kripto swing trading asistanı — Grafik Analizi, Terapist, Haber Bülteni",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
-  "orientation": "portrait",
-  "description": "Shark - tanitim surumu",
   "icons": [
     {
       "src": "./icon-192.png",
@@ -20,5 +20,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "id": "/Shark/windows/"
 }
