@@ -26,9 +26,16 @@ self.addEventListener('fetch', function(e){
   if(e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request).then(function(resp){
-      // Basarili cevabi onbellege de kaydet (offline icin)
-      const copy = resp.clone();
-      caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
+      // YALNIZCA basarili (200) ve ayni kaynakli cevaplar onbellege alinir.
+      // Aksi halde GitHub yayin sirasinda donen 404/500 sayfasi onbellege
+      // girip offline'da "site yok" olarak gosterilirdi.
+      try{
+        var ayniKaynak = new URL(e.request.url).origin === self.location.origin;
+        if(resp && resp.status === 200 && resp.type !== 'opaque' && ayniKaynak){
+          const copy = resp.clone();
+          caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
+        }
+      }catch(err){}
       return resp;
     }).catch(function(){
       // Internet yok - onbellekten ver
